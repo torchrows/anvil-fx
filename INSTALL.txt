@@ -1,0 +1,30 @@
+ANVIL FX - install
+==================
+
+WINDOWS
+1. Copy the "Anvil FX.vst3" folder to:
+   C:\Program Files\Common Files\VST3\
+2. Open FL Studio > Options > Manage plugins > Find more plugins (scan).
+3. Anvil FX shows up under Effects. Add it to a mixer insert.
+
+MAC
+1. Copy "Anvil FX.vst3" to:  /Library/Audio/Plug-Ins/VST3/
+   (Optional) copy "Anvil FX.component" to: /Library/Audio/Plug-Ins/Components/
+2. The first time, macOS may block it because it isn't signed with a paid
+   Apple developer account. Open Terminal and run:
+     sudo xattr -dr com.apple.quarantine "/Library/Audio/Plug-Ins/VST3/Anvil FX.vst3"
+     sudo xattr -dr com.apple.quarantine "/Library/Audio/Plug-Ins/Components/Anvil FX.component"
+3. In FL Studio: Options > Manage plugins > Find more plugins (scan).
+
+USING IT
+- Turn effects on with the dots in the left list. Click a name to edit it.
+- Draw the shape: click to add points, drag to move, double-click to delete,
+  drag the small circle between two points to bend the curve. Hold Alt to
+  move freely off the grid.
+- DEPTH sets how much the shape moves the knob chosen in MOVES.
+- RATE syncs the shape to FL's tempo.
+- Formant: drag the pad. Left/right = deeper/brighter voice, up/down = pitch.
+- Vocoder sidechain: pick "Sidechain" as the carrier, then in FL route the
+  track you want as the carrier to this mixer track as a sidechain and pick
+  it in the plugin's input menu (wrapper > processing > input port).
+- Your saved presets live in Documents/Anvil FX/Presets.

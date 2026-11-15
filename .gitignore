@@ -1,0 +1,6 @@
+build/
+build-*/
+*.png.tmp
+.DS_Store
+*.png
+!Assets/**/*.png
