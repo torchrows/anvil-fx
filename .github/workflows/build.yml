@@ -1,0 +1,72 @@
+name: Build Anvil FX
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -B build -G "Visual Studio 17 2022" -A x64
+
+      - name: Build VST3
+        run: cmake --build build --config Release --target AnvilFX_VST3 --parallel
+
+      - name: Package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path out | Out-Null
+          Copy-Item -Recurse "build/AnvilFX_artefacts/Release/VST3/Anvil FX.vst3" "out/Anvil FX.vst3"
+          Copy-Item "INSTALL.txt" "out/INSTALL.txt"
+          Compress-Archive -Path "out/*" -DestinationPath "AnvilFX-Windows.zip"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AnvilFX-Windows
+          path: AnvilFX-Windows.zip
+
+  mac:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build VST3 and AU
+        run: cmake --build build --config Release --target AnvilFX_VST3 AnvilFX_AU --parallel 4
+
+      - name: Sign (ad-hoc) and package
+        run: |
+          mkdir -p out
+          cp -R "build/AnvilFX_artefacts/Release/VST3/Anvil FX.vst3" out/
+          cp -R "build/AnvilFX_artefacts/Release/AU/Anvil FX.component" out/
+          codesign --force --deep --sign - "out/Anvil FX.vst3"
+          codesign --force --deep --sign - "out/Anvil FX.component"
+          cp INSTALL.txt out/
+          cd out && ditto -c -k --sequesterRsrc --keepParent . ../AnvilFX-Mac.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AnvilFX-Mac
+          path: AnvilFX-Mac.zip
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [ windows, mac ]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/**/*.zip
